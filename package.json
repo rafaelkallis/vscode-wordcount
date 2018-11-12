@@ -1,11 +1,11 @@
 {
-	"name": "wordcount",
-	"displayName": "Word Count",
+	"name": "whoknows",
+	"displayName": "Who Knows",
 	"version": "0.1.0",
-	"publisher": "ms-vscode",
-	"description": "Markdown Word Count Example - a status bar contribution that reports out the number of words in a Markdown document as you interact with it.",
+	"publisher": "rafaelkallis",
+	"description": "Who Knows? - a status bar contribution that reports the best person to ask a question for the file being edited.",
 	"author": {
-		"name": "seanmcbreen"
+		"name": "Rafael Kallis"
 	},
 	"categories": [
 		"Other"
@@ -17,11 +17,11 @@
 		"theme": "dark"
 	},
 	"activationEvents": [
-		"onLanguage:markdown"
+		"*"
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-wordcount.git"
+		"url": "https://github.com/rafaelkallis/who-knows.git"
 	},
 	"engines": {
 		"vscode": "0.10.x"
@@ -34,5 +34,8 @@
 	"devDependencies": {
 		"vscode": "0.10.x",
 		"typescript": "^1.6.2"
+	},
+	"dependencies": {
+		"degree-of-authorship": "1.0.0"
 	}
 }

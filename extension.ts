@@ -1,32 +1,26 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import {window, workspace, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
+import { relative } from 'path';
+import {degreeOfAuthorship} from 'degree-of-authorship';
 
 // this method is called when your extension is activated. activation is
 // controlled by the activation events defined in package.json
 export function activate(ctx: ExtensionContext) {
-
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "Wordcount" is now active!');
-
-    // create a new word counter
-    let wordCounter = new WordCounter();
-    let controller = new WordCounterController(wordCounter);
+    // create a expertise finder
+    const expertiseFinder = new ExpertiseFinder();
+    const controller = new ExpertiseFinderController(expertiseFinder);
 
     // add to a list of disposables which are disposed when this extension
     // is deactivated again.
     ctx.subscriptions.push(controller);
-    ctx.subscriptions.push(wordCounter);
+    ctx.subscriptions.push(expertiseFinder);
 }
 
-export class WordCounter {
-
+export class ExpertiseFinder {
     private _statusBarItem: StatusBarItem;
-
-    public updateWordCount() {
-        
-        // Create as needed
+    
+    public updateExpert() {
         if (!this._statusBarItem) {
             this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
         } 
@@ -38,32 +32,24 @@ export class WordCounter {
             return;
         }
 
-        let doc = editor.document;
-
-        // Only update status if an MD file
-        if (doc.languageId === "markdown") {
-            let wordCount = this._getWordCount(doc);
-
+        const workingDir = (workspace as any).workspaceFolders[0].uri.path;
+        const filePath = relative(workingDir, window.activeTextEditor.document.fileName);
+        this._getExpert(workingDir, filePath).then(expert => {
             // Update the status bar
-            this._statusBarItem.text = wordCount !== 1 ? `$(pencil) ${wordCount} Words` : '$(pencil) 1 Word';
-            this._statusBarItem.show();
-        } else {
-            this._statusBarItem.hide();
-        }
+            this._statusBarItem.text = `$(person) ${expert}`;
+            this._statusBarItem.show();    
+        });
     }
 
-    public _getWordCount(doc: TextDocument): number {
-        let docContent = doc.getText();
-
-        // Parse out unwanted whitespace so the split is accurate
-        docContent = docContent.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ');
-        docContent = docContent.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-        let wordCount = 0;
-        if (docContent != "") {
-            wordCount = docContent.split(" ").length;
+    private async _getExpert(workingDir: string, filePath: string) {
+        const doaMap = await degreeOfAuthorship(workingDir, filePath);
+        let [expert] = Object.keys(doaMap);
+        for (const author of Object.keys(doaMap)) {
+            if (doaMap[author] > doaMap[expert]) {
+                expert = author;
+            }
         }
-
-        return wordCount;
+        return expert;            
     }
 
     public dispose() {
@@ -71,18 +57,17 @@ export class WordCounter {
     }
 }
 
-class WordCounterController {
+class ExpertiseFinderController {
 
-    private _wordCounter: WordCounter;
+    private _expertiseFinder: ExpertiseFinder;
     private _disposable: Disposable;
 
-    constructor(wordCounter: WordCounter) {
-        this._wordCounter = wordCounter;
-        this._wordCounter.updateWordCount();
+    constructor(expertiseFinder: ExpertiseFinder) {
+        this._expertiseFinder = expertiseFinder;
+        this._expertiseFinder.updateExpert();
 
         // subscribe to selection change and editor activation events
         let subscriptions: Disposable[] = [];
-        window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
         window.onDidChangeActiveTextEditor(this._onEvent, this, subscriptions);
 
         // create a combined disposable from both event subscriptions
@@ -90,7 +75,7 @@ class WordCounterController {
     }
 
     private _onEvent() {
-        this._wordCounter.updateWordCount();
+        this._expertiseFinder.updateExpert();
     }
 
     public dispose() {
