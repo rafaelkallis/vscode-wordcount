@@ -1,3 +1,8 @@
+/**
+ * @file extension
+ * @author Rafael Kallis <rk@rafaelkallis.com>
+ */
+
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import {window, workspace, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument} from 'vscode';
@@ -34,22 +39,31 @@ export class ExpertiseFinder {
 
         const workingDir = (workspace as any).workspaceFolders[0].uri.path;
         const filePath = relative(workingDir, window.activeTextEditor.document.fileName);
-        this._getExpert(workingDir, filePath).then(expert => {
+        this._getExperts(workingDir, filePath).then(experts => {
             // Update the status bar
-            this._statusBarItem.text = `$(person) ${expert}`;
+            this._statusBarItem.text = '$(person) ' + experts.join(', ');
             this._statusBarItem.show();    
         });
     }
 
-    private async _getExpert(workingDir: string, filePath: string) {
-        const doaMap = await degreeOfAuthorship(workingDir, filePath);
-        let [expert] = Object.keys(doaMap);
-        for (const author of Object.keys(doaMap)) {
-            if (doaMap[author] > doaMap[expert]) {
-                expert = author;
+    private _getExpert(workingDir: string, filePath: string) {
+        return degreeOfAuthorship(workingDir, filePath).then(doaMap => {
+            let [expert] = Object.keys(doaMap);
+            for (const author of Object.keys(doaMap)) {
+                if (doaMap[author] > doaMap[expert]) {
+                    expert = author;
+                }
             }
-        }
-        return expert;            
+            return expert;
+        });
+    }
+
+    private _getExperts(workingDir: string, filePath: string) {
+      return degreeOfAuthorship(workingDir, filePath).then(doaMap => {
+        let experts = Object.keys(doaMap);
+        experts.sort((a, b) => doaMap[a] - doaMap[b]);
+        return experts.slice(0, 3);
+      });
     }
 
     public dispose() {
