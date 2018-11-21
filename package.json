@@ -1,9 +1,9 @@
 {
 	"name": "whoknows",
-	"displayName": "Who Knows",
+	"displayName": "Whoknows",
 	"version": "0.1.0",
 	"publisher": "rafaelkallis",
-	"description": "Who Knows? - a status bar contribution that reports the best person to ask a question for the file being edited.",
+	"description": "A vscode status bar extension that reports the best person to ask a question for the file being actively edited.",
 	"author": {
 		"name": "Rafael Kallis"
 	},
@@ -21,7 +21,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rafaelkallis/who-knows.git"
+		"url": "https://github.com/rafaelkallis/whoknows.git"
 	},
 	"engines": {
 		"vscode": "0.10.x"
