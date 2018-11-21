@@ -1,7 +1,7 @@
 {
 	"name": "whoknows",
 	"displayName": "Whoknows",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"publisher": "rafaelkallis",
 	"description": "A vscode status bar extension that reports the best person to ask a question for the file being actively edited.",
 	"author": {
